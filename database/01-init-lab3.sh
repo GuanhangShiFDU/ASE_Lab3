@@ -27,6 +27,8 @@ SQL
 done
 
 docker_process_sql <<'SQL' || exit 1
+SET NAMES utf8mb4;
+
 CREATE TABLE lab3_driver.demo_accounts (
     id VARCHAR(32) PRIMARY KEY,
     role ENUM('passenger', 'driver') NOT NULL,
