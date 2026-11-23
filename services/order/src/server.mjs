@@ -1,23 +1,23 @@
 import { createServer } from 'node:http';
 import { checkDatabase, createDatabase } from '../shared/database.mjs';
+import { createOrderService } from './application/order-service.mjs';
+import { initializeOrderStore, createOrderStore } from './infrastructure/order-store.mjs';
+import { createAuthenticator } from './interface/auth.mjs';
+import { createOrderHandler } from './interface/http.mjs';
 
-const service = 'order';
 const port = Number(process.env.PORT ?? 3000);
-
-const database = createDatabase();
-
-const server = createServer(async (request, response) => {
-  const healthRequest = request.method === 'GET' && request.url === '/health';
-  const ready = healthRequest && await checkDatabase(database);
-  response.writeHead(healthRequest ? (ready ? 200 : 503) : 404, {
-    'Content-Type': 'application/json; charset=utf-8',
-    'Cache-Control': 'no-store',
-  });
-  response.end(JSON.stringify(healthRequest
-    ? { status: ready ? 'ok' : 'unavailable', service }
-    : { error: { code: 'NOT_FOUND', message: 'Route not found' } }));
+const authenticate = createAuthenticator({
+  signingKey: process.env.LAB3_AUTH_SIGNING_KEY,
+  internalToken: process.env.LAB3_INTERNAL_TOKEN,
 });
+const database = createDatabase();
+await initializeOrderStore(database);
 
-server.listen(port, '0.0.0.0', () => {
-  console.log(`[${service}] listening on port ${port}`);
+const handler = createOrderHandler({
+  orders: createOrderService(createOrderStore(database)),
+  authenticate,
+  isReady: () => checkDatabase(database),
+});
+createServer(handler).listen(port, '0.0.0.0', () => {
+  console.log(`[order] listening on port ${port}`);
 });
