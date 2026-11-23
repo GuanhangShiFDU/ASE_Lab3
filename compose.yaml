@@ -94,5 +94,13 @@ services:
     ports:
       - "127.0.0.1:${DISPATCH_PORT:-18104}:3000"
 
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_MAP_TILE_URL: ${MAP_TILE_URL-osm}
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-18080}:80"
+
 volumes:
   mysql_data:

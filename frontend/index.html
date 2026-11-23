@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>上海叫车台 · Lab 3</title>
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a href="/" class="brand"><span class="brand-mark" aria-hidden="true">沪</span>上海叫车台</a>
+      <span class="edition">高级软件工程 · Lab 3</span>
+      <div class="identity" id="identity" hidden>
+        <span id="account"></span><button type="button" id="logout" class="link">切换账号</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="welcome" class="welcome">
+      <h1>今天，去上海哪里？</h1>
+      <p>选择一个演示账号。可以在另一窗口用不同角色一起操作。</p>
+      <div class="role-grid">
+        <section class="panel role-choice"><h2>乘客</h2><p>选点估价，发起叫车和查看行程。</p>
+          <div class="controls"><button data-login="passenger-1">乘客一</button><button data-login="passenger-2" class="secondary">乘客二</button></div>
+        </section>
+        <section class="panel role-choice"><h2>司机</h2><p>上线接单，处理接驾和完单。</p>
+          <div class="controls"><button data-login="driver-1">司机一</button><button data-login="driver-2" class="secondary">司机二</button></div>
+        </section>
+      </div>
+      <p id="login-message" class="message" aria-live="polite"></p>
+    </section>
+
+    <div id="desk" hidden>
+      <div class="intro">
+        <div><h1 id="desk-title"></h1><p id="desk-intro"></p></div>
+        <button type="button" id="refresh" class="secondary">刷新状态</button>
+      </div>
+      <p id="notice" class="message" aria-live="polite"></p>
+      <div class="dashboard">
+        <div class="stack">
+          <section class="panel" id="passenger-panel" hidden>
+            <h2>发起叫车</h2>
+            <div class="places">
+              <label>上车点<select id="pickup"></select></label>
+              <label>目的地<select id="dropoff"></select></label>
+            </div>
+            <p id="estimate" class="quote" aria-live="polite">选择起终点后可查看估价。</p>
+            <div class="controls">
+              <button id="estimate-btn" class="secondary">查看估价</button>
+              <button id="book">发起叫车</button>
+            </div>
+          </section>
+          <section class="panel" id="driver-panel" hidden>
+            <div class="heading"><h2>接单状态</h2><span id="driver-badge" class="pill">读取中</span></div>
+            <p id="driver-state">正在读取司机状态。</p>
+            <button id="driver-toggle" class="secondary">上线接单</button>
+          </section>
+          <section class="panel" id="offers-panel" hidden>
+            <h2>派单邀请</h2><div id="offers"><p>暂无邀请。</p></div>
+          </section>
+          <section class="panel">
+            <div class="heading"><h2>订单状态</h2><span id="order-badge" class="pill">暂无订单</span></div>
+            <div id="order"><p>当前没有订单。</p></div>
+            <div class="controls" id="order-actions"></div>
+          </section>
+        </div>
+        <div class="stack">
+          <section class="panel map-panel">
+            <div class="heading"><h2>行程地图</h2><span id="map-status" class="pill">上海</span></div>
+            <div id="map" role="region" aria-label="上海起终点地图"></div>
+            <div id="map-coordinates" class="map-coordinates"></div>
+            <a id="map-attribution" class="map-attribution" href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">© OpenStreetMap contributors</a>
+          </section>
+          <section class="panel" id="history-panel" hidden>
+            <div class="heading"><h2>我的历史</h2><button id="history-refresh" class="link">刷新历史</button></div>
+            <div id="history"><p>暂无历史订单。</p></div>
+            <button id="history-more" class="secondary" hidden>加载更多</button>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
