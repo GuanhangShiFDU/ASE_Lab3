@@ -29,6 +29,29 @@ export async function initializeOrderStore(pool) {
       UNIQUE KEY order_version_unique (order_id, order_version),
       KEY pending_events (published_at, sequence)
     ) ENGINE=InnoDB`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS order_driver_releases (
+      order_id CHAR(36) PRIMARY KEY,
+      driver_id VARCHAR(32) NOT NULL,
+      completed_at DATETIME(3) NULL,
+      KEY pending_releases (completed_at, order_id)
+    ) ENGINE=InnoDB`);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS order_background_retries (
+      task_type ENUM('release','delivery') NOT NULL,
+      task_id CHAR(36) NOT NULL,
+      attempts INT UNSIGNED NOT NULL,
+      next_attempt_at DATETIME(3) NOT NULL,
+      last_error VARCHAR(64) NOT NULL,
+      PRIMARY KEY (task_type, task_id)
+    ) ENGINE=InnoDB`);
+  // Reconcile terminal orders written before automatic release existed.
+  await pool.query(`
+    INSERT INTO order_driver_releases (order_id, driver_id)
+    SELECT id, JSON_UNQUOTE(JSON_EXTRACT(snapshot, '$.driverId')) FROM orders
+    WHERE JSON_TYPE(JSON_EXTRACT(snapshot, '$.driverId')) = 'STRING'
+      AND JSON_UNQUOTE(JSON_EXTRACT(snapshot, '$.status')) IN ('CANCELED','COMPLETED')
+    ON DUPLICATE KEY UPDATE order_id = order_driver_releases.order_id`);
 }
 
 async function findOrder(connection, orderId, locked) {
@@ -66,6 +89,12 @@ async function saveOrder(connection, order, previous) {
   await connection.execute(
     'INSERT INTO order_outbox (event_id, order_id, order_version, payload) VALUES (?, ?, ?, ?)',
     [event.eventId, event.orderId, event.orderVersion, JSON.stringify(event)]);
+
+  if (order.driverId && ['CANCELED', 'COMPLETED'].includes(order.status)) {
+    await connection.execute(
+      'INSERT INTO order_driver_releases (order_id, driver_id) VALUES (?, ?)',
+      [order.orderId, order.driverId]);
+  }
 }
 
 export function createOrderStore(pool) {

@@ -34,6 +34,8 @@ services:
     environment:
       DB_HOST: db
       DB_NAME: lab3_order
+      DRIVER_URL: http://driver:3000
+      ORDER_QUERY_URL: http://order-query:3000
       LAB3_AUTH_SIGNING_KEY: ${LAB3_AUTH_SIGNING_KEY:-lab3-dev-user-signing-key}
       LAB3_INTERNAL_TOKEN: ${LAB3_INTERNAL_TOKEN:-lab3-dev-internal-token}
       DB_USER: lab3_order_app
@@ -49,6 +51,7 @@ services:
     environment:
       DB_HOST: db
       DB_NAME: lab3_order_query
+      LAB3_INTERNAL_TOKEN: ${LAB3_INTERNAL_TOKEN:-lab3-dev-internal-token}
       DB_USER: lab3_order_query_app
       DB_PASSWORD: ${ORDER_QUERY_DB_PASSWORD:-lab3-dev-order-query}
     ports:
