@@ -2,7 +2,7 @@
 
 2026 高级软件工程 · 第 22 小组。[作业要求](https://openmsg.yuque.com/openmsg/gp3cfs/kyho3e4luti0xo6a) · 截止 2026-11-25。
 
-当前骨架包含四个可独立运行的 Node.js 24 服务、MySQL 8.4 和演示数据。各服务的健康接口会检查自己的数据库连接。订单流程、登录、消息投递、界面和正式业务测试由对应任务实现。
+平台包含四个可独立运行的 Node.js 24 服务、MySQL 8.4 和双角色前端。各服务的健康接口会检查自己的数据库连接。
 
 ## 启动
 
@@ -19,13 +19,13 @@ sh scripts/smoke.sh
 | Driver | 预设身份、司机资料、在线与占用 | http://localhost:18103/health |
 | Dispatch | 派单与匹配进度 | http://localhost:18104/health |
 
-可复制 `.env.example` 为 `.env` 修改本机端口。运行 `docker compose down` 停止环境。容器间用服务名和端口 3000 访问。见[接口基线](contracts/README.md)。
+前端入口为 http://localhost:18080。见[双角色端到端步骤](contracts/frontend.md)。可复制 `.env.example` 为 `.env` 修改本机端口。运行 `docker compose down` 停止环境。容器间用服务名和端口 3000 访问。见[接口基线](contracts/README.md)。
 
 ## 数据库与演示数据
 
 Compose 内使用 `db:3306`，MySQL 端口不映射到宿主机。每个服务收到自己的 `DB_HOST`、`DB_NAME`、`DB_USER`、`DB_PASSWORD`。四个账号只获准访问各自的库 `lab3_order`、`lab3_order_query`、`lab3_driver` 和 `lab3_dispatch`。跨服务读取通过接口或事件。应用容器不使用 root 账号。
 
-首次启动在 Driver 库的 `demo_accounts` 表预置以下身份。Driver 任务可直接使用这些 ID 实现预设身份登录。
+首次启动在 Driver 库的 `demo_accounts` 表预置以下可登录的身份。
 
 | 角色 | 账号 ID |
 | --- | --- |
@@ -43,6 +43,22 @@ sh scripts/check-databases.sh
 ```
 
 首次初始化才会应用账号和种子。可丢弃的环境可以按上述步骤重建来更改数据库密码。需要保留数据时，应先在 MySQL 内更新账号密码，再同步修改配置。
+
+## Order 自动化测试
+
+单元测试需要 Node.js 24 或更高版本，无需启动数据库：
+
+```sh
+node --test services/order/test/domain.test.mjs services/order/test/application.test.mjs
+```
+
+组件测试需要 Docker 与 Docker Compose。脚本自动创建独立测试项目和 MySQL `lab3_order_test` 库，使用完会清理。无需先启动整个平台：
+
+```sh
+sh scripts/test-order-components.sh
+```
+
+测试范围、环境与一次实跑结果见 [Order 测试记录](docs/order-testing.md)。
 
 ## 分工
 

@@ -1,0 +1,27 @@
+Order 测试输出摘录（2026-11-23，基线 f55d3c1 + #71272993 补丁）
+
+单元级
+node --test services/order/test/domain.test.mjs services/order/test/application.test.mjs
+✔ creating uses only the authenticated passenger and normalizes locations (3.32ms)
+✔ repeated start returns the existing snapshot without another write (0.21275ms)
+✔ an unknown order returns 404 before attempting a write (6.426709ms)
+✔ estimate returns integer meters/cents and rejects unusable places (1.852417ms)
+✔ rejects a different driver, an early start, and cancellation after boarding (0.226ms)
+✔ a canceled ride cannot be assigned or started later (0.0895ms)
+✔ finish keeps the first effective timestamp and fare on retries (0.097667ms)
+✔ application validates idempotency keys and blocks drivers from creating an order (0.299667ms)
+ℹ tests 8
+ℹ pass 8
+ℹ fail 0
+
+服务级
+sh scripts/test-order-components.sh
+✔ HTTP health, estimate validation and user/service authentication (60.292625ms)
+✔ full lifecycle persists ordered versions, one fare and a release job (52.804958ms)
+✔ concurrent same-key creation and replay after restarting HTTP use one persisted order (18.265958ms)
+✔ two concurrent assignments to one driver leave exactly one successful binding (10.76875ms)
+✔ cancel and boarding compete on the same order without two successful transitions (12.605416ms)
+✔ failure to write an outbox event rolls back the cancel, idempotency key and release job (17.817792ms)
+ℹ tests 6
+ℹ pass 6
+ℹ fail 0
