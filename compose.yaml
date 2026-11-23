@@ -1,0 +1,40 @@
+x-service: &service
+  init: true
+  healthcheck:
+    test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+    interval: 2s
+    timeout: 2s
+    retries: 15
+services:
+  order:
+    <<: *service
+    build:
+      context: .
+      args:
+        SERVICE: order
+    ports:
+      - "127.0.0.1:${ORDER_PORT:-18101}:3000"
+  order-query:
+    <<: *service
+    build:
+      context: .
+      args:
+        SERVICE: order-query
+    ports:
+      - "127.0.0.1:${ORDER_QUERY_PORT:-18102}:3000"
+  driver:
+    <<: *service
+    build:
+      context: .
+      args:
+        SERVICE: driver
+    ports:
+      - "127.0.0.1:${DRIVER_PORT:-18103}:3000"
+  dispatch:
+    <<: *service
+    build:
+      context: .
+      args:
+        SERVICE: dispatch
+    ports:
+      - "127.0.0.1:${DISPATCH_PORT:-18104}:3000"
