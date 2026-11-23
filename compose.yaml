@@ -62,6 +62,8 @@ services:
     environment:
       DB_HOST: db
       DB_NAME: lab3_driver
+      LAB3_AUTH_SIGNING_KEY: ${LAB3_AUTH_SIGNING_KEY:-lab3-dev-user-signing-key}
+      LAB3_INTERNAL_TOKEN: ${LAB3_INTERNAL_TOKEN:-lab3-dev-internal-token}
       DB_USER: lab3_driver_app
       DB_PASSWORD: ${DRIVER_DB_PASSWORD:-lab3-dev-driver}
     ports:
