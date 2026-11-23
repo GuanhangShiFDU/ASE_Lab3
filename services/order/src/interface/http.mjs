@@ -47,6 +47,12 @@ export function createOrderHandler({ orders, authenticate, isReady }) {
       }
       const internal = path.startsWith('/internal/');
       if (request.method === 'GET') {
+        if (path === '/internal/orders/matching') {
+          authenticate(request, true);
+          const after = new URLSearchParams(request.url.split('?')[1]).get('after') ?? '';
+          if (after && !new RegExp(`^${orderId}$`).test(after)) throw invalid('Invalid matching cursor');
+          return send(response, 200, await orders.matching(after));
+        }
         const lookup = internalQuery.exec(path);
         if (lookup) {
           authenticate(request, true);

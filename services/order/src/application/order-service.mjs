@@ -24,6 +24,7 @@ function commandData(command, payload) {
 export function createOrderService(store, clock = () => new Date().toISOString()) {
   return {
     estimate: estimateOrder,
+    matching: after => store.matching(after),
     async getInternal(orderId) {
       const order = await store.find(orderId);
       if (!order) throw new OrderError(404, 'NOT_FOUND', 'Order not found');

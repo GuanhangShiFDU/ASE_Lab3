@@ -71,6 +71,13 @@ async function saveOrder(connection, order, previous) {
 export function createOrderStore(pool) {
   return {
     find: id => findOrder(pool, id, false),
+    async matching(after) {
+      const [rows] = await pool.execute(
+        `SELECT id, snapshot FROM orders
+         WHERE id > ? AND JSON_UNQUOTE(JSON_EXTRACT(snapshot, '$.status')) = 'MATCHING'
+         ORDER BY id LIMIT 100`, [after]);
+      return { orders: rows.map(row => row.snapshot), nextCursor: rows.length === 100 ? rows.at(-1).id : null };
+    },
     async runCommand({ actor, key, hash }, operation) {
       const connection = await pool.getConnection();
       const identity = [actor.role, actor.id, key];
