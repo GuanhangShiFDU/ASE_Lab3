@@ -2,7 +2,7 @@
 
 2026 高级软件工程 · 第 22 小组。[作业要求](https://openmsg.yuque.com/openmsg/gp3cfs/kyho3e4luti0xo6a) · 截止 2026-11-25。
 
-当前骨架包含四个可独立运行的 Node.js 24 服务和健康接口。订单、数据库、消息投递、界面与正式测试随对应卡片实现。
+当前骨架包含四个可独立运行的 Node.js 24 服务、MySQL 8.4 和演示数据。各服务的健康接口会检查自己的数据库连接。订单流程、登录、消息投递、界面和正式业务测试由对应任务实现。
 
 ## 启动
 
@@ -20,6 +20,29 @@ sh scripts/smoke.sh
 | Dispatch | 派单与匹配进度 | http://localhost:18104/health |
 
 可复制 `.env.example` 为 `.env` 修改本机端口。运行 `docker compose down` 停止环境。容器间用服务名和端口 3000 访问。见[接口基线](contracts/README.md)。
+
+## 数据库与演示数据
+
+Compose 内使用 `db:3306`，MySQL 端口不映射到宿主机。每个服务收到自己的 `DB_HOST`、`DB_NAME`、`DB_USER`、`DB_PASSWORD`。四个账号只获准访问各自的库 `lab3_order`、`lab3_order_query`、`lab3_driver` 和 `lab3_dispatch`。跨服务读取通过接口或事件。应用容器不使用 root 账号。
+
+首次启动在 Driver 库的 `demo_accounts` 表预置以下身份。Driver 任务可直接使用这些 ID 实现预设身份登录。
+
+| 角色 | 账号 ID |
+| --- | --- |
+| 乘客 | `passenger-1`、`passenger-2` |
+| 司机 | `driver-1`、`driver-2` |
+
+用 `sh scripts/check-databases.sh` 检查四个库的权限隔离及预置身份。配置示例包含本地演示默认值。在共享环境通过未提交的 `.env` 设置独立密码，应用库密码使用至少 8 个字母、数字、下划线或连字符。
+
+`docker compose down` 会保留数据。确认当前目录和 Compose 项目名对应的是可丢弃的 Lab3 开发环境之后，运行以下命令可重新初始化。**第一条会删除该项目的数据库卷和全部开发数据。**
+
+```sh
+docker compose down --volumes
+docker compose up -d --build --wait
+sh scripts/check-databases.sh
+```
+
+首次初始化才会应用账号和种子。可丢弃的环境可以按上述步骤重建来更改数据库密码。需要保留数据时，应先在 MySQL 内更新账号密码，再同步修改配置。
 
 ## 分工
 
