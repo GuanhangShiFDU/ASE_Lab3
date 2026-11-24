@@ -1,0 +1,66 @@
+2026-11-24 · Codex 执行
+候选：CodeArts master 87ba79ce0d47700cf2601bf072f9531915ef60f2；与 GitHub master 一致。
+初始 git status --porcelain 无输出。
+
+环境、容器、数据库隔离和浏览器联调
+ProductName:		macOS
+ProductVersion:		26.6.2
+BuildVersion:		25G83
+87ba79ce0d47700cf2601bf072f9531915ef60f2
+v26.0.0
+Docker 29.4.3 / 29.4.3
+Docker Compose version v5.1.4
+NAME                                         IMAGE                                      COMMAND                  SERVICE       CREATED          STATUS                    PORTS
+lab3-accept-71272994-browser-db-1            lab3-accept-71272994-browser-db            "docker-entrypoint.s…"   db            12 seconds ago   Up 11 seconds (healthy)   3306/tcp, 33060/tcp
+lab3-accept-71272994-browser-dispatch-1      lab3-accept-71272994-browser-dispatch      "docker-entrypoint.s…"   dispatch      12 seconds ago   Up 2 seconds (healthy)    127.0.0.1:19284->3000/tcp
+lab3-accept-71272994-browser-driver-1        lab3-accept-71272994-browser-driver        "docker-entrypoint.s…"   driver        12 seconds ago   Up 2 seconds (healthy)    127.0.0.1:19283->3000/tcp
+lab3-accept-71272994-browser-frontend-1      lab3-accept-71272994-browser-frontend      "/docker-entrypoint.…"   frontend      12 seconds ago   Up 11 seconds             127.0.0.1:19280->80/tcp
+lab3-accept-71272994-browser-order-1         lab3-accept-71272994-browser-order         "docker-entrypoint.s…"   order         12 seconds ago   Up 2 seconds (healthy)    127.0.0.1:19281->3000/tcp
+lab3-accept-71272994-browser-order-query-1   lab3-accept-71272994-browser-order-query   "docker-entrypoint.s…"   order-query   12 seconds ago   Up 2 seconds (healthy)    127.0.0.1:19282->3000/tcp
+OK order
+OK order-query
+OK driver
+OK dispatch
+OK lab3_order
+OK lab3_order_query
+OK lab3_driver
+OK lab3_dispatch
+PASS browser: desktop passenger + mobile driver, tile failure fallback, quote, booking, accept, board, finish, history, refresh, cancel/rebook, internal route blocked
+
+Order 和前端单元、Order 组件测试
+✔ creating uses only the authenticated passenger and normalizes locations (3.011458ms)
+✔ repeated start returns the existing snapshot without another write (0.441083ms)
+✔ an unknown order returns 404 before attempting a write (6.61675ms)
+✔ estimate returns integer meters/cents and rejects unusable places (2.157416ms)
+✔ rejects a different driver, an early start, and cancellation after boarding (0.254ms)
+✔ a canceled ride cannot be assigned or started later (0.214209ms)
+✔ finish keeps the first effective timestamp and fare on retries (0.182792ms)
+✔ application validates idempotency keys and blocks drivers from creating an order (0.294625ms)
+ℹ tests 8
+ℹ pass 8
+ℹ fail 0
+✔ a delayed or missing projection preserves the latest successful order write (1.5225ms)
+✔ rebooking accepts a new order ID, even with a smaller version number (0.123083ms)
+✔ drivers can progress the trip and passengers cannot cancel after boarding (0.114042ms)
+ℹ tests 3
+ℹ pass 3
+ℹ fail 0
+✔ HTTP health, estimate validation and user/service authentication (114.770875ms)
+✔ full lifecycle persists ordered versions, one fare and a release job (113.023458ms)
+✔ concurrent same-key creation and replay after restarting HTTP use one persisted order (108.198208ms)
+✔ two concurrent assignments to one driver leave exactly one successful binding (82.232167ms)
+✔ cancel and boarding compete on the same order without two successful transitions (70.986083ms)
+[order] POST /orders/a02ece5f-87b1-4278-875c-2b172933cf42/cancel ER_DUP_ENTRY
+✔ failure to write an outbox event rolls back the cancel, idempotency key and release job (54.588709ms)
+ℹ tests 6
+ℹ pass 6
+ℹ fail 0
+
+派单
+PASS Dispatch HTTP: no driver, offer ownership, reject/accept, cancellation, offline race, persisted timeout and reoffer after restart
+
+跨服务恢复
+PASS recovery: failed release and delivery persisted, Order restart resumed both, event replay deduplicated, old release preserved new reservation, completion released automatically
+
+读模型
+PASS CQRS: persisted projection, identity scope, composition, Driver outage, Query catch-up, duplicate and stale events, history pagination, reads independent of Order
