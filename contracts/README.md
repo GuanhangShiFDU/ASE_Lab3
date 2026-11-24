@@ -16,3 +16,5 @@
 Order 在写事务中记录订单快照事件。建议事件包含 `eventId`、`type: OrderSnapshotChanged`、`schemaVersion: 1`、`orderId`、`orderVersion`、`occurredAt` 和 `snapshot`。读侧只接受更高版本，快照包含当前状态、乘客/司机标识、起终点、时间与费用摘要。客户端用写响应的状态和版本，查询追上之前避免界面回退。组合司机资料失败时保留订单基本内容并标记资料暂不可用。
 
 各服务自行管理业务表。Order 与 Driver、Dispatch 与 Order 的内部调用格式、恢复进度和重试策略由对应任务在首轮联调前补齐。
+
+详细实现参见 [Driver](driver.md)、[Order](order-write.md)、[Dispatch](dispatch.md)、[Order Query](order-query.md)、[跨服务恢复及事件](order-recovery.md)和[前端联调](frontend.md)。

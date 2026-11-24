@@ -4,6 +4,9 @@
 
 平台包含四个可独立运行的 Node.js 24 服务、MySQL 8.4 和双角色前端。各服务的健康接口会检查自己的数据库连接。
 
+- [实现报告](docs/report.md) · [总体架构](docs/architecture.png) · [数据模型](docs/data-model.png)
+- [现场演示与验收证据](docs/acceptance.md) · [服务接口与事件](contracts/README.md)
+
 ## 启动
 
 ```sh
@@ -62,16 +65,16 @@ sh scripts/test-order-components.sh
 
 ## 分工
 
-| 成员 | 任务 |
+| 成员 | 任务与工作项 |
 | --- | --- |
-| 史冠航 | 仓库及 Compose、Order Query、报告与交付 |
-| 李全昊 | Order 领域与行程、Driver 服务 |
-| 刘子扬 | Dispatch、跨服务恢复与事件投递 |
-| 刘乐翔 | 双角色界面与地图 |
-| 杨润东 | Order 单元及组件测试、现场验收 |
+| 史冠航（组长） | 仓库及 Compose #71272982、Order Query #71272991、报告与交付 #71272995 |
+| 李全昊 | Order 领域与行程 #71272987、Driver 服务 #71272988 |
+| 刘子扬 | Dispatch #71272989、跨服务恢复与事件投递 #71272990 |
+| 刘乐翔 | 双角色界面与地图 #71272992 |
+| 杨润东 | Order 单元及组件测试 #71272993、联调与现场验收 #71272994 |
 
 ## CodeArts 同步
 
-在原 CodeArts 项目中创建空的独立 `lab3` 仓库。GitHub 本仓库的 Actions Repository secret 使用 `CODEARTS_SSH_PRIVATE_KEY`，可复用 Lab2 的专用同步密钥。对应 CodeArts 账号需要对 `lab3` 有写权限。
+交付入口为第 22 小组 [CodeArts 的独立 lab3 仓库](https://devcloud.cn-north-4.huaweicloud.com/codehub/project/c1aa0a224dba4c2591226b87a5af9407/codehub/3123171/home?ref=master)。GitHub 本仓库的 Actions Repository secret 使用 `CODEARTS_SSH_PRIVATE_KEY`，可复用 Lab2 的专用同步密钥。对应 CodeArts 账号需要对 `lab3` 有写权限。
 
 工作流合并到 GitHub `master` 后自动推送，也可在 Actions 手动运行 **Sync master to CodeArts**。工作流会校验两端提交 SHA，并在历史分叉时保留原记录、报告失败。
